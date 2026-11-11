@@ -16,8 +16,9 @@ Open the example patches and explore them: change `Count`, turn stacking on and 
 - Use `Index` to make each iteration different, for example to move each object further to the right
 - `Loop2d` outputs `X` and `Y` for grids
 
-A loop runs the ops inside it once per iteration, one after another. There is only **one instance** of each op, and all iterations share it.
-For most ops this is fine. For some it is not, and that is what stacking is for.
+A loop runs the ops inside it once per iteration, one after another. Each op has only **one instance**, which is shared across all iterations. 
+This works fine for most ops, but not for all. That’s where stacking comes in.
+
 
 ## Stacking
 
@@ -31,7 +32,7 @@ Stacking duplicates an op for every iteration of the loop, so each iteration has
 
 ![](img/stack_patch.png)
 
-In this case the circle op is stacked. Without stacking in every frame every circle mesh would be generataed again. With stacking every circle has its own mesh and it stays the same until changed.
+In this case the circle op is stacked. Without stacking, every circle mesh would be generated again on every frame. With stacking, every circle has its own mesh and it stays the same until changed.
 
 ## Performance Tip
 
@@ -47,12 +48,12 @@ Without stacking, a single op receives different values in every iteration, so i
 With stacking, the inputs of each copy stay the same, so nothing is recalculated until a value actually changes.
 
 This matters for ops that generate meshes, fill large arrays or create textures, and for subpatches that do this.
-Without stacking, a loop that draws 20 different meshes rebuilds all 20 every frame. With stacking, each mesh is built once, and only a mesh whose settings change is rebuilt.
+Without stacking, a loop that draws 20 different meshes rebuilds all 20 every frame. With stacking, each mesh is generated only once and rebuilt only when its settings change.
 
 ### Ops that create something
 
 Ops that create an HTML element, a texture, a mesh or another resource.
-Without stacking there is only one of it, shared by all iterations. With stacking, each iteration gets its own.
+Without stacking, there is only one of it, shared by all iterations. With stacking, each iteration gets its own.
 
 ## When not to stack
 
